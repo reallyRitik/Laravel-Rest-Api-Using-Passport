@@ -21,11 +21,11 @@ class Apicontroller extends Controller
             "password" => "required|confirmed",
         ]);
 
-        User::create([
-"name"=> $request->name,
-"email"=> $request->email,
-"password"=> bcrypt($request->password),
-        ]);
+            User::create([
+                "name"=> $request->name,
+                "email"=> $request->email,
+                "password"=> bcrypt($request->password),
+            ]);
 
         return response()->json([
             "status"=>true,
@@ -68,10 +68,38 @@ class Apicontroller extends Controller
             ], 401);
         }
     }
-
-
-
-
-    public function profile() {}
-    public function logout() {}
+    
+    public function profile() {
+        $userData = auth('api')->user();
+        if (!$userData) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid Credentials!',
+                'data' => null
+            ], 401);
+        }
+    
+        return response()->json([
+            'status' => true,
+            'message' => 'User profile retrieved successfully',
+            'data' => $userData
+        ], 200);
+    }
+    
+    public function logout() {
+        try {
+            auth('api')->logout();
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'User logged out successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to logout, please try again.',
+            ], 500);
+        }
+    }
+    
 }
